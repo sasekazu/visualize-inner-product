@@ -33,21 +33,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedVector = null;
     let dragRadius = 10; // ドラッグ開始のための検出半径（タッチデバイスでは自動的に大きくなる）
     
-    // モバイルデバイス向けのキャンバスサイズ調整
+    // キャンバスサイズ調整（横長表示対応）
     function resizeCanvas() {
         const container = document.querySelector('.canvas-container');
         const containerWidth = container.clientWidth;
         
-        // コンテナ幅が600px未満の場合、キャンバスをリサイズ
-        if (containerWidth < 600) {
-            // キャンバスの表示サイズをCSSで調整（style.cssのmedia queryで設定）
-            // 内部解像度は維持（ピクセル比を考慮）
-            const pixelRatio = window.devicePixelRatio || 1;
-            
-            // タッチデバイスの場合、ドラッグ検出半径を大きくする
-            if ('ontouchstart' in window) {
-                dragRadius = 15; // タッチ向けに大きめに設定
-            }
+        // キャンバスの表示サイズをCSSで調整
+        // 内部解像度は維持（ピクセル比を考慮）
+        const pixelRatio = window.devicePixelRatio || 1;
+        
+        // タッチデバイスの場合、ドラッグ検出半径を大きくする
+        if ('ontouchstart' in window) {
+            dragRadius = 15; // タッチ向けに大きめに設定
         }
         
         // 中心点を再計算

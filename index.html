@@ -7,34 +7,38 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
+<div class="container">
         <h1>ベクトル内積の可視化</h1>
         <div class="canvas-container">
             <canvas id="vectorCanvas" width="600" height="600"></canvas>
         </div>
-        <div class="controls">
-            <div class="vector-controls">
-                <h2>ベクトル A</h2>
-                <label>
-                    x成分: <input type="number" id="vectorAx" value="3" step="0.5">
-                </label>
-                <label>
-                    y成分: <input type="number" id="vectorAy" value="2" step="0.5">
-                </label>
+        <div class="controls-wrapper">
+            <div class="controls">
+                <div class="vector-controls">
+                    <h2>ベクトル A</h2>
+                    <label>
+                        x成分: <input type="number" id="vectorAx" value="3" step="0.5">
+                    </label>
+                    <label>
+                        y成分: <input type="number" id="vectorAy" value="2" step="0.5">
+                    </label>
+                </div>
+                <div class="vector-controls">
+                    <h2>ベクトル B</h2>
+                    <label>
+                        x成分: <input type="number" id="vectorBx" value="2" step="0.5">
+                    </label>
+                    <label>
+                        y成分: <input type="number" id="vectorBy" value="4" step="0.5">
+                    </label>
+                </div>
             </div>
-            <div class="vector-controls">
-                <h2>ベクトル B</h2>
-                <label>
-                    x成分: <input type="number" id="vectorBx" value="2" step="0.5">
-                </label>                <label>
-                    y成分: <input type="number" id="vectorBy" value="4" step="0.5">
-                </label>
+            <div class="result">
+                <p>ベクトル A・B の内積: <span id="dotProduct">0</span></p>
             </div>
-        </div>        <div class="result">
-            <p>ベクトル A・B の内積: <span id="dotProduct">0</span></p>
-        </div>
-        <div class="instructions">
-            <p><small>ヒント: ベクトルの先端をドラッグまたはタッチして動かすことができます。</small></p>
+            <div class="instructions">
+                <p><small>ヒント: ベクトルの先端をドラッグまたはタッチして動かすことができます。</small></p>
+            </div>
         </div>
     </div>
     <script src="script.js"></script>

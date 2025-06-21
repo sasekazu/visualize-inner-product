@@ -1,17 +1,26 @@
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 10px;
     background-color: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
 .container {
-    max-width: 800px;
+    width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
     background-color: white;
-    padding: 20px;
+    padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -22,28 +31,40 @@ h1 {
 .canvas-container {
     display: flex;
     justify-content: center;
-    margin: 20px 0;
+    align-items: center;
+    margin: 10px 0;
+    width: 100%;
 }
 
 canvas {
     background-color: white;
     border: 1px solid #ddd;
     touch-action: none; /* Prevents browser handling of touch gestures like pinch-zoom */
+    max-width: 100%;
+    height: auto;
+}
+
+.controls-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 .controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 15px;
+    margin-bottom: 15px;
     justify-content: center;
+    width: 100%;
 }
 
 .vector-controls {
     background-color: #f9f9f9;
-    padding: 15px;
+    padding: 12px;
     border-radius: 5px;
-    min-width: 200px;
+    flex: 1;
+    min-width: 140px;
 }
 
 h2 {
@@ -84,21 +105,74 @@ button:hover {
     text-align: center;
     font-size: 18px;
     font-weight: bold;
-    margin-top: 20px;
-    padding: 10px;    background-color: #f0f8ff;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f0f8ff;
     border-radius: 4px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .instructions {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 8px;
     color: #666;
+}
+
+/* メディアクエリ: 横長表示の最適化 */
+@media (min-width: 769px) {
+    .container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+    
+    h1 {
+        width: 100%;
+        margin: 0 0 15px 0;
+    }
+    
+    .canvas-container {
+        flex: 3;
+        margin-right: 20px;
+        min-width: 350px;
+        max-width: 65%;
+    }
+    
+    .controls-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 250px;
+        max-width: 35%;
+        justify-content: flex-start;
+    }
+    
+    .result, .instructions {
+        width: 100%;
+    }
+    
+    .vector-controls {
+        margin-bottom: 5px;
+    }
 }
 
 /* メディアクエリ: タッチデバイス向けの調整 */
 @media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    
     .container {
         padding: 10px;
+    }
+    
+    h1 {
+        font-size: 1.5em;
+        margin: 0 0 10px 0;
     }
     
     .controls {
@@ -109,7 +183,8 @@ button:hover {
     .vector-controls {
         width: 100%;
         max-width: 300px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        padding: 10px;
     }
     
     input[type="number"] {
@@ -121,5 +196,34 @@ button:hover {
     canvas {
         max-width: 100%;
         height: auto;
+    }
+    
+    .result {
+        margin-top: 8px;
+        padding: 8px;
+    }
+    
+    .instructions {
+        margin-top: 5px;
+    }
+}
+
+/* 特に小さい画面向けの調整 */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.3em;
+    }
+    
+    h2 {
+        font-size: 1.1em;
+    }
+    
+    .vector-controls {
+        padding: 8px;
+    }
+    
+    .result {
+        font-size: 15px;
+        padding: 8px 5px;
     }
 }
