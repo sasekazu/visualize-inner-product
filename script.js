@@ -11,12 +11,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const dotProductOutput = document.getElementById('dotProduct');
     
     // キャンバスのサイズ
-    const width = canvas.width;
-    const height = canvas.height;
+    let width = canvas.width;
+    let height = canvas.height;
     
     // 原点を中心に移動
-    const centerX = width / 2;
-    const centerY = height / 2;
+    let centerX = width / 2;
+    let centerY = height / 2;
     
     // グリッドのセルサイズ
     const gridSize = 40;
@@ -31,7 +31,37 @@ document.addEventListener('DOMContentLoaded', function() {
     // ドラッグ関連の変数
     let isDragging = false;
     let selectedVector = null;
-    let dragRadius = 10; // ドラッグ開始のための検出半径
+    let dragRadius = 10; // ドラッグ開始のための検出半径（タッチデバイスでは自動的に大きくなる）
+    
+    // モバイルデバイス向けのキャンバスサイズ調整
+    function resizeCanvas() {
+        const container = document.querySelector('.canvas-container');
+        const containerWidth = container.clientWidth;
+        
+        // コンテナ幅が600px未満の場合、キャンバスをリサイズ
+        if (containerWidth < 600) {
+            // キャンバスの表示サイズをCSSで調整（style.cssのmedia queryで設定）
+            // 内部解像度は維持（ピクセル比を考慮）
+            const pixelRatio = window.devicePixelRatio || 1;
+            
+            // タッチデバイスの場合、ドラッグ検出半径を大きくする
+            if ('ontouchstart' in window) {
+                dragRadius = 15; // タッチ向けに大きめに設定
+            }
+        }
+        
+        // 中心点を再計算
+        width = canvas.width;
+        height = canvas.height;
+        centerX = width / 2;
+        centerY = height / 2;
+        
+        // 再描画
+        drawAll();
+    }
+    
+    // 初期化時とウィンドウリサイズ時にキャンバスサイズを調整
+    window.addEventListener('resize', resizeCanvas);
     
     // 入力フィールドの変更イベントリスナー
     vectorAxInput.addEventListener('input', updateVectorsFromInputs);
@@ -58,12 +88,37 @@ document.addEventListener('DOMContentLoaded', function() {
     canvas.addEventListener('mouseup', handleMouseUp);
     canvas.addEventListener('mouseleave', handleMouseUp); // キャンバス外に出た場合もドラッグ終了
     
+    // タッチイベントリスナーの追加
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    canvas.addEventListener('touchend', handleTouchEnd);
+    canvas.addEventListener('touchcancel', handleTouchEnd);
+    
     // マウスダウンイベントの処理
     function handleMouseDown(e) {
         const rect = canvas.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
         
+        checkVectorSelection(mouseX, mouseY);
+    }
+    
+    // タッチスタートイベントの処理
+    function handleTouchStart(e) {
+        e.preventDefault(); // デフォルトのスクロール動作を防止
+        
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            checkVectorSelection(touchX, touchY);
+        }
+    }
+    
+    // ベクトル選択のチェック（マウスとタッチで共通の処理）
+    function checkVectorSelection(x, y) {
         // ベクトルの先端の座標を計算
         const endPointA = {
             x: centerX + vectorA.x * scale,
@@ -75,9 +130,9 @@ document.addEventListener('DOMContentLoaded', function() {
             y: centerY - vectorB.y * scale
         };
         
-        // マウスがベクトルの先端に近いかチェック
-        const distToA = Math.sqrt(Math.pow(mouseX - endPointA.x, 2) + Math.pow(mouseY - endPointA.y, 2));
-        const distToB = Math.sqrt(Math.pow(mouseX - endPointB.x, 2) + Math.pow(mouseY - endPointB.y, 2));
+        // ポインタがベクトルの先端に近いかチェック
+        const distToA = Math.sqrt(Math.pow(x - endPointA.x, 2) + Math.pow(y - endPointA.y, 2));
+        const distToB = Math.sqrt(Math.pow(x - endPointB.x, 2) + Math.pow(y - endPointB.y, 2));
         
         if (distToA < dragRadius) {
             isDragging = true;
@@ -96,10 +151,32 @@ document.addEventListener('DOMContentLoaded', function() {
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
         
+        updateVectorPosition(mouseX, mouseY);
+    }
+    
+    // タッチ移動イベントの処理
+    function handleTouchMove(e) {
+        e.preventDefault(); // デフォルトのスクロール動作を防止
+        
+        if (!isDragging) return;
+        
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            updateVectorPosition(touchX, touchY);
+        }
+    }
+    
+    // ベクトル位置の更新（マウスとタッチで共通の処理）
+    function updateVectorPosition(x, y) {
         // キャンバス座標からベクトル座標に変換
-        const vectorX = (mouseX - centerX) / scale;
-        const vectorY = (centerY - mouseY) / scale; // y軸は反転
-          if (selectedVector === 'A') {
+        const vectorX = (x - centerX) / scale;
+        const vectorY = (centerY - y) / scale; // y軸は反転
+        
+        if (selectedVector === 'A') {
             vectorA = { x: vectorX, y: vectorY };
             // 入力フィールドも更新（2桁に丸める）
             vectorAxInput.value = Math.round(vectorX * 100) / 100;
@@ -117,6 +194,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // マウスアップイベントの処理
     function handleMouseUp() {
+        isDragging = false;
+        selectedVector = null;
+    }
+    
+    // タッチエンドイベントの処理
+    function handleTouchEnd() {
         isDragging = false;
         selectedVector = null;
     }
@@ -263,8 +346,9 @@ document.addEventListener('DOMContentLoaded', function() {
         dotProductOutput.textContent = dotProduct.toFixed(2);
     }
     
-    // 初期描画
+    // 初期描画とキャンバスサイズ調整
     drawAll();
+    resizeCanvas();
     
     // カーソルスタイルの変更
     canvas.addEventListener('mousemove', function(e) {
@@ -272,6 +356,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
         
+        updateCursorStyle(mouseX, mouseY);
+    });
+    
+    // タッチ移動時のカーソルスタイル（視覚的フィードバック用）
+    canvas.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 1) {
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            updateCursorStyle(touchX, touchY);
+        }
+    }, { passive: true });
+    
+    // カーソルスタイルの更新（マウスとタッチで共通の処理）
+    function updateCursorStyle(x, y) {
         const endPointA = {
             x: centerX + vectorA.x * scale,
             y: centerY - vectorA.y * scale
@@ -282,13 +383,13 @@ document.addEventListener('DOMContentLoaded', function() {
             y: centerY - vectorB.y * scale
         };
         
-        const distToA = Math.sqrt(Math.pow(mouseX - endPointA.x, 2) + Math.pow(mouseY - endPointA.y, 2));
-        const distToB = Math.sqrt(Math.pow(mouseX - endPointB.x, 2) + Math.pow(mouseY - endPointB.y, 2));
+        const distToA = Math.sqrt(Math.pow(x - endPointA.x, 2) + Math.pow(y - endPointA.y, 2));
+        const distToB = Math.sqrt(Math.pow(x - endPointB.x, 2) + Math.pow(y - endPointB.y, 2));
         
         if (distToA < dragRadius || distToB < dragRadius) {
             canvas.style.cursor = 'pointer';
         } else {
             canvas.style.cursor = 'default';
         }
-    });
+    }
 });
